@@ -5,6 +5,7 @@ import 'package:smartpayut_mobile/app/router/route_paths.dart';
 import 'package:smartpayut_mobile/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:smartpayut_mobile/shared/config/app_seed_data.dart';
 import 'package:smartpayut_mobile/shared/models/app_user.dart';
+import 'package:smartpayut_mobile/shared/theme/app_colors.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -23,24 +24,30 @@ class ProfilePage extends ConsumerWidget {
         (user?.phone?.trim().isNotEmpty ?? false)
             ? user!.phone!
             : 'No registrado';
+    final displayDocumentId =
+    (user?.documentId?.trim().isNotEmpty ?? false)
+        ? user!.documentId!
+        : 'No registrado';
+    final displayCity =
+        (user?.city?.trim().isNotEmpty ?? false)
+            ? user!.city!
+            : 'Quito';
     final displayRole = user != null ? mapUserRoleLabel(user.role) : 'Usuario';
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           children: [
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.brandDark, AppColors.brand],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(32),
-                ),
+                borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
                 children: [
@@ -48,11 +55,8 @@ class ProfilePage extends ConsumerWidget {
                     width: 84,
                     height: 84,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.16),
+                      color: Colors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.30),
-                      ),
                     ),
                     child: const Icon(
                       Icons.person_outline,
@@ -81,130 +85,145 @@ class ProfilePage extends ConsumerWidget {
                             fontSize: 15,
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            displayEmail,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Información de cuenta',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          _ProfileInfoTile(
-                            icon: Icons.person_outline,
-                            label: 'Nombre completo',
-                            value: displayName,
-                          ),
-                          const SizedBox(height: 16),
-                          _ProfileInfoTile(
-                            icon: Icons.mail_outline,
-                            label: 'Correo electrónico',
-                            value: displayEmail,
-                          ),
-                          const SizedBox(height: 16),
-                          _ProfileInfoTile(
-                            icon: Icons.phone_outlined,
-                            label: 'Teléfono',
-                            value: displayPhone,
-                          ),
-                          const SizedBox(height: 16),
-                          _ProfileInfoTile(
-                            icon: Icons.shield_outlined,
-                            label: 'Rol',
-                            value: displayRole,
-                          ),
-                        ],
+            const SizedBox(height: 18),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Información de cuenta',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Gestión de usuario',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          SizedBox(height: 18),
-                          _SettingsRow(title: 'Editar datos personales'),
-                          _SettingsRow(title: 'Cambiar contraseña'),
-                          _SettingsRow(title: 'Preferencias de notificaciones'),
-                          _SettingsRow(title: 'Seguridad y privacidad'),
-                        ],
+                    const SizedBox(height: 18),
+                    _ProfileInfoTile(
+                      icon: Icons.person_outline,
+                      label: 'Nombre completo',
+                      value: displayName,
+                    ),
+                    const SizedBox(height: 16),
+                    _ProfileInfoTile(
+                      icon: Icons.mail_outline,
+                      label: 'Correo electrónico',
+                      value: displayEmail,
+                    ),
+                    const SizedBox(height: 16),
+                    _ProfileInfoTile(
+                      icon: Icons.phone_outlined,
+                      label: 'Teléfono',
+                      value: displayPhone,
+                    ),
+                    const SizedBox(height: 16),
+                    _ProfileInfoTile(
+                      icon: Icons.badge_outlined,
+                      label: 'Cédula',
+                      value: displayDocumentId,
+                    ),
+                    const SizedBox(height: 16),
+                    _ProfileInfoTile(
+                      icon: Icons.location_city_outlined,
+                      label: 'Ciudad',
+                      value: displayCity,
+                    ),
+                    const SizedBox(height: 16),
+                    _ProfileInfoTile(
+                      icon: Icons.shield_outlined,
+                      label: 'Rol',
+                      value: displayRole,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Acciones disponibles',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Configuración',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          SizedBox(height: 18),
-                          _SettingsRow(title: 'Métodos de pago'),
-                          _SettingsRow(title: 'Ayuda y soporte'),
-                          _SettingsRow(title: 'Términos y condiciones'),
-                          _SettingsRow(title: 'Política de privacidad'),
-                        ],
-                      ),
+                    const SizedBox(height: 18),
+                    _ActionRow(
+                      title: 'Recargar saldo',
+                      subtitle: 'Abrir mock de Place to Pay',
+                      onTap: () => context.push(RoutePaths.topUp),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF3347),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      onPressed: () async {
-                        await ref.read(authControllerProvider.notifier).logout();
-                        if (context.mounted) {
-                          context.go(RoutePaths.login);
-                        }
-                      },
-                      child: const Text('Cerrar sesión'),
+                    const SizedBox(height: 10),
+                    _ActionRow(
+                      title: 'Editar datos personales',
+                      subtitle: 'Actualizar información del usuario',
+                      onTap: () => context.push(RoutePaths.editProfile),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '${AppSeedData.companyName} Pagos Digitales\nVersión 1.0.0 · 2026',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 13,
+                    const SizedBox(height: 10),
+                    _ActionRow(
+                      title: 'Seguridad y privacidad',
+                      subtitle: 'Recuperación y control de acceso',
+                      onTap: () => context.push(RoutePaths.profileSecurity),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    _ActionRow(
+                      title: 'Ayuda y soporte',
+                      subtitle: 'Información de contacto y preguntas frecuentes',
+                      onTap: () => context.push(RoutePaths.profileSupport),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+                onPressed: () async {
+                  await ref.read(authControllerProvider.notifier).logout();
+                  if (context.mounted) {
+                    context.go(RoutePaths.login);
+                  }
+                },
+                child: const Text('Cerrar sesión'),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '${AppSeedData.companyName} · App móvil\nVersión 1.0.0 · Sprint 3',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
               ),
             ),
           ],
@@ -240,13 +259,21 @@ class _ProfileInfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF64748B)),
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: AppColors.brandSoft,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: AppColors.brand, size: 20),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: Color(0xFF64748B))),
+              Text(label, style: const TextStyle(color: AppColors.textSecondary)),
               const SizedBox(height: 4),
               Text(
                 value,
@@ -263,24 +290,56 @@ class _ProfileInfoTile extends StatelessWidget {
   }
 }
 
-class _SettingsRow extends StatelessWidget {
+class _ActionRow extends StatelessWidget {
   final String title;
+  final String subtitle;
+  final VoidCallback? onTap;
 
-  const _SettingsRow({
+  const _ActionRow({
     required this.title,
+    required this.subtitle,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
+    return Material(
+      color: AppColors.brandSoft,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const Icon(Icons.chevron_right_rounded, color: AppColors.brand),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      trailing: const Icon(Icons.chevron_right),
     );
   }
 }

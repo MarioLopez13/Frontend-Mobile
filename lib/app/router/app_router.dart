@@ -20,7 +20,11 @@ import 'package:smartpayut_mobile/features/payments/presentation/pages/payments_
 import 'package:smartpayut_mobile/features/payments/presentation/pages/qr_payment_confirm_page.dart';
 import 'package:smartpayut_mobile/features/payments/presentation/pages/qr_scan_page.dart';
 import 'package:smartpayut_mobile/features/profile/presentation/pages/profile_page.dart';
+import 'package:smartpayut_mobile/features/wallet/presentation/pages/top_up_page.dart';
 import 'package:smartpayut_mobile/shared/widgets/main_shell_page.dart';
+import 'package:smartpayut_mobile/features/profile/presentation/pages/edit_profile_page.dart';
+import 'package:smartpayut_mobile/features/profile/presentation/pages/profile_security_page.dart';
+import 'package:smartpayut_mobile/features/profile/presentation/pages/profile_support_page.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authControllerProvider);
@@ -122,6 +126,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return NfcPaymentConfirmPage(payload: payload);
         },
       ),
+      GoRoute(
+        path: RoutePaths.topUp,
+        name: RouteNames.topUp,
+        builder: (context, state) => const TopUpPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.editProfile,
+        name: RouteNames.editProfile,
+        builder: (context, state) => const EditProfilePage(),
+      ),
+      GoRoute(
+        path: RoutePaths.profileSecurity,
+        name: RouteNames.profileSecurity,
+        builder: (context, state) => const ProfileSecurityPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.profileSupport,
+        name: RouteNames.profileSupport,
+        builder: (context, state) => const ProfileSupportPage(),
+      ),
       ShellRoute(
         builder: (context, state, child) => MainShellPage(child: child),
         routes: [
@@ -157,35 +181,13 @@ class _MissingPaymentDataPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pago'),
-      ),
-      body: Center(
+      appBar: AppBar(title: const Text('Información incompleta')),
+      body: const Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.warning_amber_rounded,
-                size: 64,
-                color: Color(0xFFEA580C),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'No se encontró información suficiente para continuar con el flujo de pago.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF475569),
-                ),
-              ),
-              const SizedBox(height: 20),
-              FilledButton(
-                onPressed: () => context.go(RoutePaths.payments),
-                child: const Text('Volver a pagos'),
-              ),
-            ],
+          padding: EdgeInsets.all(24),
+          child: Text(
+            'No se encontró la información del pago. Regresa y vuelve a intentar.',
+            textAlign: TextAlign.center,
           ),
         ),
       ),

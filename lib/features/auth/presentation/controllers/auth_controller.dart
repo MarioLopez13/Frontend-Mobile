@@ -92,6 +92,58 @@ class AuthController extends Notifier<AppUser?> {
     }
   }
 
+  Future<String?> updateLocalProfile({
+  required String name,
+  required String email,
+  required String phone,
+  required String documentId,
+  required String city,
+}) async {
+  final currentUser = state;
+
+  if (currentUser == null) {
+    return 'No existe una sesión activa.';
+  }
+
+  final trimmedName = name.trim();
+  final trimmedEmail = email.trim().toLowerCase();
+  final trimmedPhone = phone.trim();
+  final trimmedDocumentId = documentId.trim();
+  final trimmedCity = city.trim();
+
+  if (trimmedName.isEmpty) {
+    return 'Ingresa el nombre completo.';
+  }
+
+  if (!_isValidEmail(trimmedEmail)) {
+    return 'Ingresa un correo válido.';
+  }
+
+  if (trimmedPhone.isNotEmpty && trimmedPhone.length != 10) {
+    return 'El teléfono debe tener 10 dígitos.';
+  }
+
+  if (trimmedDocumentId.isNotEmpty && trimmedDocumentId.length != 10) {
+    return 'La cédula debe tener 10 dígitos.';
+  }
+
+  final updatedUser = currentUser.copyWith(
+    name: trimmedName,
+    email: trimmedEmail,
+    phone: trimmedPhone,
+    documentId: trimmedDocumentId,
+    city: trimmedCity,
+  );
+
+  try {
+    final savedUser = await _authRepository.updateCachedUser(updatedUser);
+    state = savedUser;
+    return null;
+  } catch (_) {
+    return 'No se pudo actualizar la información del perfil.';
+  }
+}
+
   Future<void> logout() async {
     await _authRepository.logout();
     state = null;

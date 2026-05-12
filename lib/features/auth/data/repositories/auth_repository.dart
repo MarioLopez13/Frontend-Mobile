@@ -14,6 +14,7 @@ abstract class AuthRepository {
     required String password,
     String? phone,
   });
-
+  Future<AppUser> updateCachedUser(AppUser user);
+  
   Future<void> logout();
 }

@@ -85,6 +85,46 @@ class MockWalletRepository implements WalletRepository {
   }
 
   @override
+  Future<TransactionItem> topUpBalance({
+    required AppUser user,
+    required double amount,
+    String method = 'RECARGA',
+  }) async {
+    if (amount <= 0) {
+      throw StateError('El monto de recarga no es válido.');
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await _ensureWalletInitialized(prefs, user);
+
+    final currentBalance = prefs.getDouble(_balanceKey(user)) ?? 0.0;
+    final currentTransactions = await getTransactions(user);
+
+    final transaction = TransactionItem(
+      id: 'topup-${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Recarga de saldo',
+      subtitle: 'Mock Place to Pay',
+      amount: amount,
+      date: DateTime.now(),
+      method: method,
+      status: 'Completado',
+    );
+
+    final updatedTransactions = [transaction, ...currentTransactions];
+    final updatedBalance = double.parse(
+      (currentBalance + amount).toStringAsFixed(2),
+    );
+
+    await prefs.setDouble(_balanceKey(user), updatedBalance);
+    await prefs.setString(
+      _transactionsKey(user),
+      jsonEncode(updatedTransactions.map((item) => item.toJson()).toList()),
+    );
+
+    return transaction;
+  }
+
+  @override
   Future<void> syncBalanceFromBackend(AppUser user) async {
     final backendBalance = user.backendBalance;
 
@@ -171,6 +211,15 @@ class MockWalletRepository implements WalletRepository {
         status: 'Completado',
       ),
       TransactionItem(
+        id: 'topup-001',
+        title: 'Recarga de saldo',
+        subtitle: 'Mock Place to Pay',
+        amount: 5.00,
+        date: DateTime(2026, 4, 9, 19, 35),
+        method: 'RECARGA',
+        status: 'Completado',
+      ),
+      TransactionItem(
         id: 'tx-002',
         title: 'Bus 832',
         subtitle: 'Eloy Alfaro',
@@ -195,15 +244,6 @@ class MockWalletRepository implements WalletRepository {
         amount: 0.35,
         date: DateTime(2026, 4, 7, 8, 05),
         method: 'NFC',
-        status: 'Completado',
-      ),
-      TransactionItem(
-        id: 'tx-005',
-        title: 'Bus 517',
-        subtitle: 'Quitumbe',
-        amount: 0.35,
-        date: DateTime(2026, 4, 6, 17, 40),
-        method: 'QR',
         status: 'Completado',
       ),
     ];

@@ -8,6 +8,11 @@ abstract final class RoutePaths {
   static const payments = '/payments';
   static const history = '/history';
   static const profile = '/profile';
+  static const topUp = '/wallet/top-up';
+
+  static const editProfile = '/profile/edit';
+  static const profileSecurity = '/profile/security';
+  static const profileSupport = '/profile/support';
 
   static const qrScanner = '/payments/qr';
   static const qrConfirm = '/payments/qr/confirm';

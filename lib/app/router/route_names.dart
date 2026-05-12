@@ -8,6 +8,11 @@ abstract final class RouteNames {
   static const payments = 'payments';
   static const history = 'history';
   static const profile = 'profile';
+  static const topUp = 'top-up';
+
+  static const editProfile = 'edit-profile';
+  static const profileSecurity = 'profile-security';
+  static const profileSupport = 'profile-support';
 
   static const qrScanner = 'qr-scanner';
   static const qrConfirm = 'qr-confirm';

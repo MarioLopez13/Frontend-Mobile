@@ -13,5 +13,11 @@ abstract class WalletRepository {
     required String method,
   });
 
+  Future<TransactionItem> topUpBalance({
+    required AppUser user,
+    required double amount,
+    String method = 'RECARGA',
+  });
+
   Future<void> syncBalanceFromBackend(AppUser user);
 }

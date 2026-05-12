@@ -10,6 +10,8 @@ class AppUser {
   final String email;
   final UserRole role;
   final String? phone;
+  final String? documentId;
+  final String? city;
   final String? avatarUrl;
 
   final String? selectedBusinessId;
@@ -22,6 +24,8 @@ class AppUser {
     required this.email,
     required this.role,
     this.phone,
+    this.documentId,
+    this.city,
     this.avatarUrl,
     this.selectedBusinessId,
     this.selectedBusinessName,
@@ -34,6 +38,8 @@ class AppUser {
     String? email,
     UserRole? role,
     String? phone,
+    String? documentId,
+    String? city,
     String? avatarUrl,
     String? selectedBusinessId,
     String? selectedBusinessName,
@@ -48,6 +54,8 @@ class AppUser {
       email: email ?? this.email,
       role: role ?? this.role,
       phone: phone ?? this.phone,
+      documentId: documentId ?? this.documentId,
+      city: city ?? this.city,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       selectedBusinessId: clearSelectedBusinessId
           ? null
@@ -68,6 +76,8 @@ class AppUser {
       'email': email,
       'role': role.name,
       'phone': phone,
+      'documentId': documentId,
+      'city': city,
       'avatarUrl': avatarUrl,
       'selectedBusinessId': selectedBusinessId,
       'selectedBusinessName': selectedBusinessName,
@@ -84,6 +94,8 @@ class AppUser {
       email: (json['email'] ?? '').toString(),
       role: _mapRole(rawRole),
       phone: json['phone'] as String?,
+      documentId: json['documentId'] as String?,
+      city: json['city'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
       selectedBusinessId: json['selectedBusinessId']?.toString(),
       selectedBusinessName: json['selectedBusinessName']?.toString(),

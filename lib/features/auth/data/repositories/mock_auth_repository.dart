@@ -62,6 +62,12 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AppUser> updateCachedUser(AppUser user) async {
+    await _persistUser(user);
+    return user;
+  }
+
+  @override
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_storageKey);

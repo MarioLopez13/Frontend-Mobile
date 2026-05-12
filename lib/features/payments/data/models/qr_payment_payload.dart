@@ -14,24 +14,75 @@ class QrPaymentPayload {
   String get title => 'Bus $busCode';
 
   static QrPaymentPayload? tryParse(String rawValue) {
-    final uri = Uri.tryParse(rawValue.trim());
+    final cleanValue = rawValue.trim();
+
+    if (cleanValue.isEmpty) {
+      return null;
+    }
+
+    final uri = Uri.tryParse(cleanValue);
 
     if (uri == null) {
       return null;
     }
 
-    final scheme = uri.scheme.trim().toLowerCase();
-    final action = uri.host.trim().toLowerCase();
+    final payloadFromQuery = _fromQueryParameters(
+      rawValue: cleanValue,
+      queryParameters: uri.queryParameters,
+    );
 
-    final busCode = (uri.queryParameters['bus'] ?? '').trim();
-    final routeName = (uri.queryParameters['route'] ?? '').trim();
-    final amount = double.tryParse((uri.queryParameters['amount'] ?? '').trim());
+    if (payloadFromQuery != null) {
+      return payloadFromQuery;
+    }
 
-    if (scheme != 'smartpayut' || action != 'pay') {
+    final rawQueryLikeValue = Uri.tryParse('smartpayut://pay?$cleanValue');
+
+    if (rawQueryLikeValue == null) {
       return null;
     }
 
-    if (busCode.isEmpty || routeName.isEmpty || amount == null || amount <= 0) {
+    return _fromQueryParameters(
+      rawValue: cleanValue,
+      queryParameters: rawQueryLikeValue.queryParameters,
+    );
+  }
+
+  static QrPaymentPayload? _fromQueryParameters({
+    required String rawValue,
+    required Map<String, String> queryParameters,
+  }) {
+    final busCode = (
+      queryParameters['bus'] ??
+      queryParameters['busCode'] ??
+      queryParameters['unit'] ??
+      ''
+    ).trim();
+
+    final routeName = (
+      queryParameters['route'] ??
+      queryParameters['routeName'] ??
+      queryParameters['line'] ??
+      ''
+    ).trim();
+
+    final amountText = (
+      queryParameters['amount'] ??
+      queryParameters['value'] ??
+      queryParameters['price'] ??
+      ''
+    ).trim();
+
+    final amount = double.tryParse(amountText.replaceAll(',', '.'));
+
+    if (busCode.isEmpty) {
+      return null;
+    }
+
+    if (routeName.isEmpty) {
+      return null;
+    }
+
+    if (amount == null || amount <= 0) {
       return null;
     }
 

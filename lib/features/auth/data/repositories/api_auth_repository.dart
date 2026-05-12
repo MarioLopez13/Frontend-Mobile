@@ -187,6 +187,23 @@ class ApiAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AppUser> updateCachedUser(AppUser user) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(AppSessionStorage.tokenKey);
+
+    await prefs.setString(
+      AppSessionStorage.userKey,
+      jsonEncode(user.toJson()),
+    );
+
+    if (token != null && token.isNotEmpty) {
+      await prefs.setString(AppSessionStorage.tokenKey, token);
+    }
+
+    return user;
+  }
+
+  @override
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(AppSessionStorage.userKey);
