@@ -40,24 +40,42 @@ class MockWalletRepository implements WalletRepository {
 
   @override
   Future<List<TransactionItem>> getTransactions(AppUser user) async {
-    final prefs = await SharedPreferences.getInstance();
-    await _ensureWalletInitialized(prefs, user);
+    try {
+      final response = await http.get(
+        Uri.parse('${AppEnvironment.apiBaseUrl}/mobile-payments'),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user.id ?? 'demo-user',
+        },
+      );
 
-    final rawTransactions = prefs.getString(_transactionsKey(user));
+      final data = jsonDecode(response.body);
 
-    if (rawTransactions == null || rawTransactions.isEmpty) {
+      if (response.statusCode == 200 && data['success'] == true) {
+        final transactions = data['data'] as List<dynamic>;
+
+        return transactions.map((item) {
+          final transaction = Map<String, dynamic>.from(item as Map);
+
+          return TransactionItem(
+            id: (transaction['id'] ?? transaction['transactionId'] ?? '').toString(),
+            title: (transaction['routeName'] ?? 'Ruta demo').toString(),
+            subtitle: (transaction['busCode'] ?? 'BUS-DEMO').toString(),
+            amount: (transaction['amount'] as num).toDouble(),
+            date: DateTime.tryParse(
+                  (transaction['processedAt'] ?? '').toString(),
+                ) ??
+                DateTime.now(),
+            method: (transaction['method'] ?? 'QR').toString(),
+            status: (transaction['status'] ?? 'Completado').toString(),
+          );
+        }).toList();
+      }
+
+      return [];
+    } catch (_) {
       return [];
     }
-
-    final decoded = jsonDecode(rawTransactions) as List<dynamic>;
-
-    return decoded
-        .map(
-          (item) => TransactionItem.fromJson(
-            Map<String, dynamic>.from(item as Map),
-          ),
-        )
-        .toList();
   }
 
   @override
