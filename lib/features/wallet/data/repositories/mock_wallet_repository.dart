@@ -5,6 +5,8 @@ import 'package:smartpayut_mobile/features/wallet/data/models/transaction_item.d
 import 'package:smartpayut_mobile/features/wallet/data/repositories/wallet_repository.dart';
 import 'package:smartpayut_mobile/shared/config/app_seed_data.dart';
 import 'package:smartpayut_mobile/shared/models/app_user.dart';
+import 'package:smartpayut_mobile/shared/config/app_environment.dart';
+import 'package:http/http.dart' as http;
 
 class MockWalletRepository implements WalletRepository {
   static const _balancePrefix = 'smartpayut_wallet_balance_';
@@ -14,10 +16,26 @@ class MockWalletRepository implements WalletRepository {
 
   @override
   Future<double> getAvailableBalance(AppUser user) async {
-    final prefs = await SharedPreferences.getInstance();
-    await _ensureWalletInitialized(prefs, user);
+    try {
+      final response = await http.get(
+        Uri.parse('${AppEnvironment.apiBaseUrl}/mobile-payments/balance'),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user.id ?? 'demo-user',
+        },
+      );
 
-    return prefs.getDouble(_balanceKey(user)) ?? 0.0;
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final result = data['data'];
+        return (result['balance'] as num).toDouble();
+      }
+
+      return 0.0;
+    } catch (_) {
+      return 0.0;
+    }
   }
 
   @override

@@ -101,6 +101,21 @@ class _NfcScanPageState extends State<NfcScanPage> {
     }
   }
 
+  Future<void> _simulateNfcPayment() async {
+    final payload = NfcPaymentPayload(
+      rawData: 'BUS-202|Ruta Norte|0.35',
+      tagReference: 'TAG-DEMO-001',
+      busCode: 'BUS-202',
+      routeName: 'Ruta Norte',
+      amount: 0.35,
+    );
+
+    await context.push(
+      RoutePaths.nfcConfirm,
+      extra: payload,
+    );
+  }
+
   Future<void> _cancelReading() async {
     await _stopSession();
 
@@ -205,6 +220,12 @@ class _NfcScanPageState extends State<NfcScanPage> {
           OutlinedButton(
             onPressed: _isReading ? _cancelReading : null,
             child: const Text('Cancelar lectura'),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: _simulateNfcPayment,
+            icon: const Icon(Icons.nfc),
+            label: const Text('Simular NFC de prueba'),
           ),
         ],
       ),

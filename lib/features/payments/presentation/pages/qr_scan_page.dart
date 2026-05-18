@@ -27,9 +27,7 @@ class _QrScanPageState extends State<QrScanPage> {
   }
 
   Future<void> _handleDetection(BarcodeCapture capture) async {
-    if (_isHandlingScan) {
-      return;
-    }
+    if (_isHandlingScan) return;
 
     final rawValue = capture.barcodes.isEmpty
         ? null
@@ -47,31 +45,41 @@ class _QrScanPageState extends State<QrScanPage> {
       return;
     }
 
+    await _goToConfirm(payload);
+  }
+
+  Future<void> _simulateQrPayment() async {
+    final payload = QrPaymentPayload(
+      rawValue: 'BUS-101|Ruta Central|0.35',
+      busCode: 'BUS-101',
+      routeName: 'Ruta Central',
+      amount: 0.35,
+      );
+
+    await _goToConfirm(payload);
+}
+
+  Future<void> _goToConfirm(QrPaymentPayload payload) async {
     _isHandlingScan = true;
+
     setState(() {
       _scanError = null;
     });
 
     await _scannerController.stop();
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     await context.push(RoutePaths.qrConfirm, extra: payload);
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     _isHandlingScan = false;
     await _scannerController.start();
   }
 
   void _showScanError(String message) {
-    if (_isHandlingScan) {
-      return;
-    }
+    if (_isHandlingScan) return;
 
     _isHandlingScan = true;
 
@@ -80,9 +88,7 @@ class _QrScanPageState extends State<QrScanPage> {
     });
 
     Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       setState(() {
         _scanError = null;
@@ -139,35 +145,49 @@ class _QrScanPageState extends State<QrScanPage> {
             left: 16,
             right: 16,
             bottom: 24,
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.88),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Ubica el QR fijo de la unidad dentro del recuadro.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.88),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'El sistema validará el código y te llevará a la confirmación del pago.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                  child: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Ubica el QR fijo de la unidad dentro del recuadro.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'El sistema validará el código y te llevará a la confirmación del pago.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _simulateQrPayment,
+                    icon: const Icon(Icons.qr_code),
+                    label: const Text('Simular QR de prueba'),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
