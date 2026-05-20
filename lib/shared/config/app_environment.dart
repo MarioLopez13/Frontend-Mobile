@@ -6,7 +6,7 @@ abstract final class AppEnvironment {
 
   static const bool useMockPayments = bool.fromEnvironment(
     'USE_MOCK_PAYMENTS',
-    defaultValue: true,
+    defaultValue: false,
   );
 
   static const String fallbackApiBaseUrl = 'http://192.168.1.17:9909/api';

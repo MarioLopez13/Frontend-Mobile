@@ -5,6 +5,8 @@ import 'package:smartpayut_mobile/features/wallet/data/models/transaction_item.d
 import 'package:smartpayut_mobile/features/wallet/data/repositories/wallet_repository.dart';
 import 'package:smartpayut_mobile/shared/config/app_seed_data.dart';
 import 'package:smartpayut_mobile/shared/models/app_user.dart';
+import 'package:smartpayut_mobile/shared/config/app_environment.dart';
+import 'package:http/http.dart' as http;
 
 class MockWalletRepository implements WalletRepository {
   static const _balancePrefix = 'smartpayut_wallet_balance_';
@@ -14,32 +16,66 @@ class MockWalletRepository implements WalletRepository {
 
   @override
   Future<double> getAvailableBalance(AppUser user) async {
-    final prefs = await SharedPreferences.getInstance();
-    await _ensureWalletInitialized(prefs, user);
+    try {
+      final response = await http.get(
+        Uri.parse('${AppEnvironment.apiBaseUrl}/mobile-payments/balance'),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user.id ?? 'demo-user',
+        },
+      );
 
-    return prefs.getDouble(_balanceKey(user)) ?? 0.0;
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final result = data['data'];
+        return (result['balance'] as num).toDouble();
+      }
+
+      return 0.0;
+    } catch (_) {
+      return 0.0;
+    }
   }
 
   @override
   Future<List<TransactionItem>> getTransactions(AppUser user) async {
-    final prefs = await SharedPreferences.getInstance();
-    await _ensureWalletInitialized(prefs, user);
+    try {
+      final response = await http.get(
+        Uri.parse('${AppEnvironment.apiBaseUrl}/mobile-payments'),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user.id ?? 'demo-user',
+        },
+      );
 
-    final rawTransactions = prefs.getString(_transactionsKey(user));
+      final data = jsonDecode(response.body);
 
-    if (rawTransactions == null || rawTransactions.isEmpty) {
+      if (response.statusCode == 200 && data['success'] == true) {
+        final transactions = data['data'] as List<dynamic>;
+
+        return transactions.map((item) {
+          final transaction = Map<String, dynamic>.from(item as Map);
+
+          return TransactionItem(
+            id: (transaction['id'] ?? transaction['transactionId'] ?? '').toString(),
+            title: (transaction['routeName'] ?? 'Ruta demo').toString(),
+            subtitle: (transaction['busCode'] ?? 'BUS-DEMO').toString(),
+            amount: (transaction['amount'] as num).toDouble(),
+            date: DateTime.tryParse(
+                  (transaction['processedAt'] ?? '').toString(),
+                ) ??
+                DateTime.now(),
+            method: (transaction['method'] ?? 'QR').toString(),
+            status: (transaction['status'] ?? 'Completado').toString(),
+          );
+        }).toList();
+      }
+
+      return [];
+    } catch (_) {
       return [];
     }
-
-    final decoded = jsonDecode(rawTransactions) as List<dynamic>;
-
-    return decoded
-        .map(
-          (item) => TransactionItem.fromJson(
-            Map<String, dynamic>.from(item as Map),
-          ),
-        )
-        .toList();
   }
 
   @override
